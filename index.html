@@ -152,18 +152,6 @@ async function deleteData(rowNumber) {
   loadData();
 }
 
-// Preview Google Maps
-form.lokasi.addEventListener("input", () => {
-  const lokasi = form.lokasi.value.trim();
-  const mapPreview = document.getElementById("mapPreview");
-  if (lokasi.length > 3) {
-    const url = "https://www.google.com/maps?q=" + encodeURIComponent(lokasi) + "&output=embed";
-    mapPreview.src = url;
-  } else {
-    mapPreview.src = "";
-  }
-});
-
 // Export ke Excel
 function exportToExcel() {
   const table = document.querySelector("table");
