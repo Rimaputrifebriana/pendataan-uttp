@@ -75,8 +75,8 @@
       const method = data.id ? "updateData" : ""; // kosong = simpan baru (POST ke Web App)
 
       const url = method
-        ? "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?" + new URLSearchParams({ method })
-        : "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
+        ? "https://script.google.com/macros/s/AKfycbyqfsvORATiugdfTVgVBYOMIhdngS1-nCCbOaMmkhotT2o3Ve5KYB9LPVdIVmsGAihh/exec?" + new URLSearchParams({ method })
+        : "https://script.google.com/macros/s/AKfycbyqfsvORATiugdfTVgVBYOMIhdngS1-nCCbOaMmkhotT2o3Ve5KYB9LPVdIVmsGAihh/exec";
 
       const res = await fetch(url, {
         method: "POST",
@@ -110,7 +110,7 @@
     }
 
     async function loadData() {
-      const res = await fetch("https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?method=getData");
+      const res = await fetch("https://script.google.com/macros/s/AKfycbyqfsvORATiugdfTVgVBYOMIhdngS1-nCCbOaMmkhotT2o3Ve5KYB9LPVdIVmsGAihh/exec?method=getData");
       const data = await res.json();
       const tbody = document.querySelector("#dataTable tbody");
       tbody.innerHTML = "";
