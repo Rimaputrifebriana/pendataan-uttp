@@ -2,11 +2,9 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Pendataan UTTP</title>
+  <title>Pendataan UTTP Kota Tasikmalaya</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    #map { height: 300px; }
-  </style>
+  <style>#map { height: 300px; }</style>
 </head>
 <body class="container py-4">
   <h2 class="mb-4">Form Pendataan UTTP</h2>
@@ -54,6 +52,7 @@
   </table>
 
   <script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzn1wMxMNq9wTc5kOCT6Q6Igr0_Q0NqKHFB1Q423oiXCyTTnzsJt4w7MiALgrryVh-8/exec";
     const form = document.getElementById("uttpForm");
     const mapElement = document.getElementById("map");
     let map, marker;
@@ -72,11 +71,9 @@
         lokasi: lokasi.value
       };
 
-      const method = data.id ? "updateData" : ""; // kosong = simpan baru (POST ke Web App)
+      const method = data.id ? "updateData" : "";
 
-      const url = method
-        ? "https://script.google.com/macros/s/AKfycbyqfsvORATiugdfTVgVBYOMIhdngS1-nCCbOaMmkhotT2o3Ve5KYB9LPVdIVmsGAihh/exec?" + new URLSearchParams({ method })
-        : "https://script.google.com/macros/s/AKfycbyqfsvORATiugdfTVgVBYOMIhdngS1-nCCbOaMmkhotT2o3Ve5KYB9LPVdIVmsGAihh/exec";
+      const url = method ? ${WEB_APP_URL}?method=${method} : WEB_APP_URL;
 
       const res = await fetch(url, {
         method: "POST",
@@ -110,7 +107,7 @@
     }
 
     async function loadData() {
-      const res = await fetch("https://script.google.com/macros/s/AKfycbyqfsvORATiugdfTVgVBYOMIhdngS1-nCCbOaMmkhotT2o3Ve5KYB9LPVdIVmsGAihh/exec?method=getData");
+      const res = await fetch(${WEB_APP_URL}?method=getData);
       const data = await res.json();
       const tbody = document.querySelector("#dataTable tbody");
       tbody.innerHTML = "";
@@ -128,7 +125,7 @@
           <td>${item.lokasi}</td>
           <td>
             <button class="btn btn-sm btn-warning" onclick='editData(${JSON.stringify(item)})'>Edit</button>
-            <button class="btn btn-sm btn-danger" onclick='hapusData(${item.id})'>Hapus</button>
+            <button class="btn btn-sm btn-danger" onclick='hapusData("${item.id}")'>Hapus</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -150,7 +147,7 @@
     async function hapusData(id) {
       if (!confirm("Yakin ingin menghapus data ini?")) return;
 
-      const res = await fetch("https://script.google.com/macros/s/AKfycbyqfsvORATiugdfTVgVBYOMIhdngS1-nCCbOaMmkhotT2o3Ve5KYB9LPVdIVmsGAihh/exec?method=deleteData", {
+      const res = await fetch(${WEB_APP_URL}?method=deleteData, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ id })
@@ -171,7 +168,7 @@
   </script>
   <script>
     function initMap() {
-      map = new google.maps.Map(mapElement, {
+      map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: -7.35, lng: 108.2 },
         zoom: 12
       });
