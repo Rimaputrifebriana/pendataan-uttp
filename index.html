@@ -61,25 +61,29 @@ const scriptURL = "https://script.google.com/macros/s/AKfycbzIEeiHKy9PWbvZn4E82z
 // Load Data dari Google Sheet
 async function loadData() {
   const res = await fetch(scriptURL);
-  const json = await res.json();
-  const data = json.values;
-  dataBody.innerHTML = "";
-
-  data.slice(1).forEach((row, i) => {
-    const lokasiLink = <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(row[6])}" target="_blank">${row[6]}</a>;
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td>
-      <td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td>
-      <td>${lokasiLink}</td>
-      <td>
-        <button class="btn btn-sm btn-warning me-1" onclick="editData(${i+2}, ${JSON.stringify(row).replace(/"/g, '&quot;')})">Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteData(${i+2})">Hapus</button>
-      </td>`;
-    dataBody.appendChild(tr);
-  });
+  const text = await res.text();
+  console.log("Response:", text); // Tambahkan ini
+  try {
+    const json = JSON.parse(text);
+    const data = json.values;
+    dataBody.innerHTML = "";
+    data.slice(1).forEach((row, i) => {
+      const lokasiLink = <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(row[6])}" target="_blank">${row[6]}</a>;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td>
+        <td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td>
+        <td>${lokasiLink}</td>
+        <td>
+          <button class="btn btn-sm btn-warning me-1" onclick="editData(${i+2}, ${JSON.stringify(row).replace(/"/g, '&quot;')})">Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteData(${i+2})">Hapus</button>
+        </td>`;
+      dataBody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error("Gagal parse JSON:", err);
+  }
 }
-loadData();
 
 // Submit Form
 form.addEventListener("submit", async e => {
