@@ -88,7 +88,7 @@
         tbody.innerHTML = "";
         rows.slice(1).forEach((row, i) => {
           const rowNumber = i + 2; // karena header di baris 1
-          const lokasiLink = <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(row[6])}" target="_blank">${row[6]}</a>;
+          const lokasiLink = '<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(row[6])}" target="_blank">${row[6]}</a>';
           const tr = `<tr>
             <td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td>
             <td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td><td>${lokasiLink}</td>
