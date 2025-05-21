@@ -84,31 +84,41 @@ loadData();
 // Submit Form
 form.addEventListener("submit", async e => {
   e.preventDefault();
-  const data = {
-    action: form.rowNumber.value ? "update" : "add",
-    rowNumber: form.rowNumber.value,
-    jenis: form.jenis.value,
-    merk: form.merk.value,
-    model: form.model.value,
-    noseri: form.noseri.value,
-    tanggal: form.tanggal.value,
-    pemilik: form.pemilik.value,
-    lokasi: form.lokasi.value
-  };
-
-  const res = await fetch(scriptURL, {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: { "Content-Type": "application/json" }
-  });
-
-  statusEl.textContent = await res.text();
-  statusEl.className = "alert alert-success my-2";
-  form.reset();
-  form.rowNumber.value = "";
-  submitBtn.textContent = "Simpan Data";
-  document.getElementById("mapPreview").src = "";
-  loadData();
+  try {
+    const data = {
+      action: form.rowNumber.value ? "update" : "add",
+      rowNumber: form.rowNumber.value,
+      jenis: form.jenis.value,
+      merk: form.merk.value,
+      model: form.model.value,
+      noseri: form.noseri.value,
+      tanggal: form.tanggal.value,
+      pemilik: form.pemilik.value,
+      lokasi: form.lokasi.value
+    };
+    console.log("Data akan dikirim:", data);
+    alert("Mengirim data ke server...");
+    const res = await fetch(scriptURL, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: { "Content-Type": "application/json" }
+    });
+    if (!res.ok) throw new Error(HTTP error! status: ${res.status});
+    const responseText = await res.text();
+    alert("Respon server: " + responseText);
+    statusEl.textContent = responseText;
+    statusEl.className = "alert alert-success my-2";
+    form.reset();
+    form.rowNumber.value = "";
+    submitBtn.textContent = "Simpan Data";
+    document.getElementById("mapPreview").src = "";
+    loadData();
+  } catch (error) {
+    console.error("Error saat submit:", error);
+    alert("Error: " + error.message);
+    statusEl.textContent = "Error: " + error.message;
+    statusEl.className = "alert alert-danger my-2";
+  }
 });
 
 // Edit
