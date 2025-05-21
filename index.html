@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pendataan UTTP</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-4">
+  <h2 class="mb-4">Form Pendataan UTTP</h2>
+
+  <form id="uttpForm" class="row g-3 mb-3">
+    <input type="hidden" name="rowNumber" id="rowNumber">
+    <div class="col-md-4"><input name="jenis" class="form-control" placeholder="Jenis UTTP" required></div>
+    <div class="col-md-4"><input name="merk" class="form-control" placeholder="Merk" required></div>
+    <div class="col-md-4"><input name="model" class="form-control" placeholder="Model/Tipe" required></div>
+    <div class="col-md-4"><input name="noseri" class="form-control" placeholder="Nomor Seri" required></div>
+    <div class="col-md-4"><input name="tanggal" type="date" class="form-control" required></div>
+    <div class="col-md-4"><input name="pemilik" class="form-control" placeholder="Nama Pemilik" required></div>
+    <div class="col-md-6"><input name="lokasi" class="form-control" placeholder="Lokasi (alamat atau koordinat)" required></div>
+    <div class="col-md-6 d-grid"><button type="submit" class="btn btn-primary" id="submitBtn">Simpan Data</button></div>
+  </form>
+
+  <div id="status" class="alert alert-info d-none"></div>
+
+  <h4>Data UTTP</h4>
+  <table class="table table-bordered table-striped" id="dataTable">
+    <thead>
+      <tr>
+        <th>Jenis</th><th>Merk</th><th>Model</th><th>No Seri</th>
+        <th>Tanggal</th><th>Pemilik</th><th>Lokasi</th><th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script>
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbyYnMznhforRl4ujMh09GkDUFha3jlGmZxDXHoCfB8fQr9OoUoBtHHSwA6UBZRoP8tW/exec';
+
+  const form = document.getElementById("uttpForm");
+  const statusEl = document.getElementById("status");
+  const submitBtn = document.getElementById("submitBtn");
+
+  // Load data on start
+  loadData();
+
+  // Submit form
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const data = {
+      jenis: formData.get("jenis"),
+      merk: formData.get("merk"),
+      model: formData.get("model"),
+      noseri: formData.get("noseri"),
+      tanggal: formData.get("tanggal"),
+      pemilik: formData.get("pemilik"),
+      lokasi: formData.get("lokasi"),
+      action: formData.get("rowNumber") ? "update" : "add",
+      rowNumber: formData.get("rowNumber")
+    };
+
+    fetch(scriptURL, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: { "Content-Type": "application/json" }
+    })
+    .then(res => res.text())
+    .then(msg => {
+      statusEl.textContent = msg;
+      statusEl.classList.remove("d-none");
+      form.reset();
+      document.getElementById("rowNumber").value = "";
+      submitBtn.textContent = "Simpan Data";
+      loadData();
+    });
+  });
+
+  // Load data dari Google Sheets
+  function loadData() {
+    fetch(scriptURL)
+      .then(res => res.json())
+      .then(data => {
+        const rows = data.values;
+        const tbody = document.querySelector("#dataTable tbody");
+        tbody.innerHTML = "";
+        rows.slice(1).forEach((row, i) => {
+          const rowNumber = i + 2; // karena header di baris 1
+          const lokasiLink = <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(row[6])}" target="_blank">${row[6]}</a>;
+          const tr = `<tr>
+            <td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td>
+            <td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td><td>${lokasiLink}</td>
+            <td>
+              <button class="btn btn-sm btn-warning me-1" onclick="editData(${rowNumber}, ${JSON.stringify(row).replace(/"/g, '&quot;')})">Edit</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteData(${rowNumber})">Hapus</button>
+            </td>
+          </tr>`;
+          tbody.innerHTML += tr;
+        });
+      });
+  }
+
+  function editData(rowNumber, rowData) {
+    form.jenis.value = rowData[0];
+    form.merk.value = rowData[1];
+    form.model.value = rowData[2];
+    form.noseri.value = rowData[3];
+    form.tanggal.value = rowData[4];
+    form.pemilik.value = rowData[5];
+    form.lokasi.value = rowData[6];
+    form.rowNumber.value = rowNumber;
+    submitBtn.textContent = "Update Data";
+    statusEl.classList.add("d-none");
+  }
+
+  function deleteData(rowNumber) {
+    if (!confirm("Yakin ingin menghapus data ini?")) return;
+
+    fetch(scriptURL, {
+      method: "POST",
+      body: JSON.stringify({ action: "delete", rowNumber }),
+      headers: { "Content-Type": "application/json" }
+    })
+    .then(res => res.text())
+    .then(msg => {
+      statusEl.textContent = msg;
+      statusEl.classList.remove("d-none");
+      loadData();
+    });
+  }
+</script>
+
+</body>
+</html>
